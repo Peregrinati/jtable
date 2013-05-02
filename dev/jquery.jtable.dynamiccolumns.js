@@ -166,12 +166,12 @@
             this._$columnSelectionDiv = $('<div />')
                 .addClass('jtable-column-selection-container')
                 .appendTo(self._$mainContainer);
-            
+
             this._$table.children('thead').bind('contextmenu', function (e) {
                 if (!self.options.columnSelectable) {
                     return;
                 }
-                
+
                 e.preventDefault();
 
                 //Make an overlay div to disable page clicks
@@ -185,13 +185,13 @@
                     .appendTo(document.body);
 
                 self._fillColumnSelection();
-                
+
                 //Calculate position of column selection list and show it
 
                 var containerOffset = self._$mainContainer.offset();
                 var selectionDivTop = e.pageY - containerOffset.top;
                 var selectionDivLeft = e.pageX - containerOffset.left;
-                
+
                 var selectionDivMinWidth = 100; //in pixels
                 var containerWidth = self._$mainContainer.width();
 
@@ -207,7 +207,7 @@
                 }).show();
             });
         },
-        
+
         /* Prepares content of settings dialog.
         *************************************************************************/
         _fillColumnSelection: function () {

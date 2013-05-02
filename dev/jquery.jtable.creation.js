@@ -145,7 +145,7 @@
                         isNewRow: true,
                         animationsEnabled: options.animationsEnabled
                     });
-                
+
                 options.success();
                 return;
             }
@@ -159,7 +159,7 @@
                         options.error(data);
                         return;
                     }
-                    
+
                     if(!data.Record) {
                         self._logError('Server must return the created Record object.');
                         options.error(data);
@@ -167,7 +167,7 @@
                     }
 
                     self._onRecordAdded(data);
-                    
+
                     self._addRow(
                         self._createRowFromRecord(data.Record), {
                             isNewRow: true,
@@ -251,13 +251,13 @@
                 $addRecordForm.attr('action'),
                 $addRecordForm.serialize(),
                 function (data) {
-                    
+
                     if (data.Result != 'OK') {
                         self._showError(data.Message);
                         self._setEnabledOfDialogButton($saveButton, true, self.options.messages.save);
                         return;
                     }
-                    
+
                     if (!data.Record) {
                         self._logError('Server must return the created Record object.');
                         self._setEnabledOfDialogButton($saveButton, true, self.options.messages.save);

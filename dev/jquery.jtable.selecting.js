@@ -295,7 +295,7 @@
             this._onSelectionChanged();
         },
 
-        /* Search for a selected row (that is before given row index) to up and returns it's index 
+        /* Search for a selected row (that is before given row index) to up and returns it's index
         *************************************************************************/
         _findFirstSelectedRowIndexBeforeIndex: function (rowIndex) {
             for (var i = rowIndex - 1; i >= 0; --i) {
@@ -307,7 +307,7 @@
             return -1;
         },
 
-        /* Search for a selected row (that is after given row index) to down and returns it's index 
+        /* Search for a selected row (that is after given row index) to down and returns it's index
         *************************************************************************/
         _findFirstSelectedRowIndexAfterIndex: function (rowIndex) {
             for (var i = rowIndex + 1; i < this._$tableRows.length; ++i) {

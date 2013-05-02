@@ -72,7 +72,7 @@
         *************************************************************************/
         closeChildTable: function ($row, closed) {
             var self = this;
-            
+
             var $childRowColumn = this.getChildRow($row).children('td');
             var $childTable = $childRowColumn.data('childTable');
             if (!$childTable) {

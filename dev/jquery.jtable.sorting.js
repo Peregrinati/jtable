@@ -105,7 +105,7 @@
         *************************************************************************/
         _makeColumnSortable: function ($columnHeader, fieldName) {
             var self = this;
-            
+
             $columnHeader
                 .addClass('jtable-column-header-sortable')
                 .click(function (e) {
@@ -114,7 +114,7 @@
                     if (!self.options.multiSorting || !e.ctrlKey) {
                         self._lastSorting = []; //clear previous sorting
                     }
-                    
+
                     self._sortTableByColumn($columnHeader);
                 });
 
@@ -173,10 +173,11 @@
 
             var sorting = [];
             $.each(this._lastSorting, function (idx, value) {
-                sorting.push(value.fieldName + ' ' + value.sortOrder);
+                var order = (value.sortOrder == 'ASC' ? '' : '-');
+                sorting.push(order + value.fieldName);
             });
 
-            return (url + (url.indexOf('?') < 0 ? '?' : '&') + 'jtSorting=' + sorting.join(","));
+            return (url + (url.indexOf('?') < 0 ? '?' : '&') + 'order_by=' + sorting.join("&order_by="));
         }
 
     });

@@ -74,7 +74,6 @@
                             id: 'EditDialogSaveButton',
                             text: self.options.messages.save,
                             click: function () {
-                                
                                 //row maybe removed by another source, if so, do nothing
                                 if (self._$editingRow.hasClass('jtable-row-removed')) {
                                     self._$editDiv.dialog('close');
@@ -355,7 +354,7 @@
             if (this.options.jqueryuiTheme) {
                 className = className + ' ui-state-highlight';
             }
-            
+
             $tableRow.stop(true, true).addClass(className, 'slow', '', function () {
                 $tableRow.removeClass(className, 5000);
             });

@@ -403,6 +403,7 @@
             self._onLoadingRecords();
             self._ajax({
                 url: loadUrl,
+                type: 'GET',
                 data: self._lastPostData,
                 success: function (data) {
                     self._hideBusy();
@@ -424,9 +425,13 @@
                         completeCallback();
                     }
                 },
-                error: function () {
+                error: function (jqXHR, textStatus, errorThrown) {
                     self._hideBusy();
-                    self._showError(self.options.messages.serverCommunicationError);
+                    var resp = jqXHR.responseText;
+                    var json = $.parseJSON(resp);
+                    var defaultMsg = self.options.messages.serverCommunicationError;
+                    var err = (json && json.error) || defaultMsg;
+                    self._showError(err);
                 }
             });
         },
@@ -434,7 +439,7 @@
         /* Creates URL to load records.
         *************************************************************************/
         _createRecordLoadUrl: function () {
-            return this.options.actions.listAction;
+            return this.options.actions.listAction || this.options.url;
         },
 
         /* TABLE MANIPULATION METHODS *******************************************/
@@ -1089,30 +1094,38 @@
         * usage of jQuery.ajax method.
         *************************************************************************/
         _ajax: function (options) {
+            var old_success = options.success;
+            var old_error = options.error;
+            options.success = null;
+            options.error = null;
             var opts = $.extend({}, this.options.ajaxSettings, options);
 
             //Override success
-            opts.success = function (data) {
-                if (options.success) {
-                    options.success(data);
+            var success = function (data) {
+                if (old_success) {
+                    old_success(data);
                 }
             };
 
             //Override error
-            opts.error = function () {
-                if (options.error) {
-                    options.error();
+            var error = function () {
+                if (old_error) {
+                    old_error.apply(this, arguments);
                 }
             };
 
             //Override complete
-            opts.complete = function () {
+            var complete = function () {
                 if (options.complete) {
                     options.complete();
                 }
             };
 
-            $.ajax(opts);
+            $.ajax(opts)
+                .then(this.options.filters.done, this.options.filters.fail)
+                .done(success)
+                .fail(error)
+                .always(complete);
         },
 
         /* Gets value of key field of a record.

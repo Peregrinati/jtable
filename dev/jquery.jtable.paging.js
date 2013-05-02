@@ -488,7 +488,7 @@
                 .appendTo(this._$pagingListArea);
 
             this._jqueryuiThemeAddClass($pageNumber, 'ui-button ui-state-default', 'ui-state-hover');
-            
+
             if (this._currentPageNo == pageNumber) {
                 $pageNumber.addClass('jtable-page-number-active jtable-page-number-disabled');
                 this._jqueryuiThemeAddClass($pageNumber, 'ui-state-active');
