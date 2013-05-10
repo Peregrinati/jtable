@@ -17,7 +17,7 @@ parser.add_argument('-m', '--make-file',
                     help='The file containing the list of files to build')
 parser.add_argument('-o', '--output-dir',
                     default='../../lib/',
-                    help='The file containing the list of files to build')
+                    help='The directory in which to place the built files')
 parser.add_argument('-z', '--minify',
                     default=True,
                     help='Create a minified version of the output file\n'
