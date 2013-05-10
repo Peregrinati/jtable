@@ -167,17 +167,26 @@
         /* Adds jtSorting parameter to a URL as query string.
         *************************************************************************/
         _addSortingInfoToUrl: function (url) {
-            if (!this.options.sorting || this._lastSorting.length == 0) {
+            var self = this;
+            if (!self.options.sorting || self._lastSorting.length == 0) {
                 return url;
             }
 
             var sorting = [];
-            $.each(this._lastSorting, function (idx, value) {
-                var order = (value.sortOrder == 'ASC' ? '' : '-');
-                sorting.push(order + value.fieldName);
+            $.each(self._lastSorting, function (idx, value) {
+                if (self.options.tastypie) {
+                    var order = (value.sortOrder == 'ASC' ? '' : '-');
+                    sorting.push(order + value.fieldName);
+                } else {
+                    sorting.push(value.fieldName + ' ' + value.sortOrder);
+                }
             });
 
-            return (url + (url.indexOf('?') < 0 ? '?' : '&') + 'order_by=' + sorting.join("&order_by="));
+            if (self.options.tastypie) {
+                return (url + (url.indexOf('?') < 0 ? '?' : '&') + 'order_by=' + sorting.join("&order_by="));
+            } else {
+                return (url + (url.indexOf('?') < 0 ? '?' : '&') + 'jtSorting=' + sorting.join(","));
+            }
         }
 
     });

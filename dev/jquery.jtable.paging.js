@@ -384,7 +384,13 @@
             var jtStartIndex = (pageNumber - 1) * this.options.pageSize;
             var jtPageSize = this.options.pageSize;
 
-            return (url + (url.indexOf('?') < 0 ? '?' : '&') + 'jtStartIndex=' + jtStartIndex + '&jtPageSize=' + jtPageSize);
+            var startParam = 'jtStartIndex';
+            var sizeParam = 'jtPageSize';
+            if (this.options.tastypie) {
+                startParam = 'offset';
+                sizeParam = 'limit';
+            }
+            return (url + (url.indexOf('?') < 0 ? '?' : '&') + startParam + '=' + jtStartIndex + '&' + sizeParam + '=' + jtPageSize);
         },
 
         /* Creates and shows the page list.

@@ -6,12 +6,30 @@
     $.widget("hik.jtable", {
 
         /************************************************************************
+        * Stuff for when options.tastypie = true                                *
+        *************************************************************************/
+        tastypie: {
+            filters: {
+                done: function(orig_data) {
+                    var data = {
+                        Result: "OK",
+                        Records: orig_data.objects,
+                        TotalRecordCount: orig_data.meta.total_count,
+                    }
+                    return data;
+                },
+            },
+        },
+
+        /************************************************************************
         * DEFAULT OPTIONS / EVENTS                                              *
         *************************************************************************/
         options: {
 
             //Options
             actions: {},
+            tastypie: false,
+            response_filters: {},
             fields: {},
             animationsEnabled: true,
             defaultDateFormat: 'yy-mm-dd',
@@ -56,7 +74,7 @@
                 error: 'Error',
                 close: 'Close',
                 cannotLoadOptionsFor: 'Can not load options for field {0}'
-            }
+            },
         },
 
         /************************************************************************
@@ -403,8 +421,9 @@
             self._onLoadingRecords();
             self._ajax({
                 url: loadUrl,
-                type: 'GET',
                 data: self._lastPostData,
+                traditional: this.options.tastypie,
+                type: this.options.tastypie ? 'GET' : 'POST',
                 success: function (data) {
                     self._hideBusy();
 
@@ -1121,8 +1140,11 @@
                 }
             };
 
-            $.ajax(opts)
-                .then(this.options.filters.done, this.options.filters.fail)
+            var d = $.ajax(opts);
+            if (this.options.tastypie) {
+                d = d.then(this.tastypie.filters.done, this.tastypie.filters.fail)
+            }
+            d.then(this.options.response_filters.done, this.options.response_filters.fail)
                 .done(success)
                 .fail(error)
                 .always(complete);
