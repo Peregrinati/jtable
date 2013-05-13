@@ -809,6 +809,7 @@
             self._ajax({
                 url: url,
                 async: false,
+                type: self.options.tastypie ? 'GET' : 'POST',
                 success: function (data) {
                     if (data.Result != 'OK') {
                         self._showError(data.Message);
