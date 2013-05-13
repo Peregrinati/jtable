@@ -109,7 +109,7 @@
             options = $.extend({
                 clientOnly: false,
                 animationsEnabled: self.options.animationsEnabled,
-                url: self.options.actions.updateAction,
+                url: (self.tastypie ? self.options.url : self.options.actions.updateAction),
                 success: function () { },
                 error: function () { }
             }, options);
@@ -178,7 +178,7 @@
         *************************************************************************/
         _addColumnsToHeaderRow: function ($tr) {
             base._addColumnsToHeaderRow.apply(this, arguments);
-            if (this.options.actions.updateAction != undefined) {
+            if (this.options.actions.updateAction != undefined || (this.options.tastypie && this.options.editable)) {
                 $tr.append(this._createEmptyCommandHeader());
             }
         },
@@ -189,7 +189,7 @@
             var self = this;
             base._addCellsToRowUsingRecord.apply(this, arguments);
 
-            if (self.options.actions.updateAction != undefined) {
+            if (self.options.actions.updateAction != undefined || (self.options.tastypie && self.options.editable)) {
                 var $span = $('<span></span>').html(self.options.messages.editRecord);
                 var $button = $('<button title="' + self.options.messages.editRecord + '"></button>')
                     .addClass('jtable-command-button jtable-edit-command-button')
@@ -217,7 +217,8 @@
             var record = $tableRow.data('record');
 
             //Create edit form
-            var $editForm = $('<form id="jtable-edit-form" class="jtable-dialog-form jtable-edit-form" action="' + self.options.actions.updateAction + '" method="POST"></form>');
+            var action_url = self.options.tastypie ? self.options.url : self.options.actions.updateAction;
+            var $editForm = $('<form id="jtable-edit-form" class="jtable-dialog-form jtable-edit-form" action="' + action_url + '" method="POST"></form>');
 
             //Create input fields
             for (var i = 0; i < self._fieldList.length; i++) {
