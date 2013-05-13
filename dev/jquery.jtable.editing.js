@@ -99,7 +99,7 @@
         },
 
         /************************************************************************
-        * PUNLIC METHODS                                                        *
+        * PUBLIC METHODS                                                        *
         *************************************************************************/
 
         /* Updates a record on the table (optionally on the server also)
