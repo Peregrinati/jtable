@@ -920,7 +920,7 @@
                     parseInt(dateString.substr(5, 2), 10) - 1,
                     parseInt(dateString.substr(8, 2), 10)
                 );
-            } else if (dateString.length == 19) { //Format: 2011-01-01 20:32:42
+            } else if (dateString.length >= 19) { //Format: 2011-01-01 20:32:42
                 return new Date(
                     parseInt(dateString.substr(0, 4), 10),
                     parseInt(dateString.substr(5, 2), 10) - 1,
