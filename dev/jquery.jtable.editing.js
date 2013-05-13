@@ -60,7 +60,7 @@
                 autoOpen: false,
                 show: self.options.dialogShowEffect,
                 hide: self.options.dialogHideEffect,
-                width: 'auto',
+                width: self.options.dialogWidth || 'auto',
                 minWidth: '300',
                 modal: true,
                 title: self.options.messages.editRecord,
