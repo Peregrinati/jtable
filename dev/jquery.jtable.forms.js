@@ -9,17 +9,34 @@
         * PRIVATE METHODS                                                       *
         *************************************************************************/
 
+        /* Converts a form to the appropriate data type for sending to the server
+        *************************************************************************/
+        _formToData: function(form) {
+            if (this.options.tastypie) {
+                var json = {};
+                $.each(form.serializeArray(), function(i, e) {
+                    json[e.name] = e.value;
+                });
+                $('input[type=checkbox]', form).each(function() {
+                    json[this.name] = this.checked;
+                });
+                return JSON.stringify(json);
+            } else {
+                return form.serialize();
+            }
+        },
+
         /* Submits a form asynchronously using AJAX.
         *  This method is needed, since form submitting logic can be overrided
         *  by extensions.
         *************************************************************************/
-        _submitFormUsingAjax: function (url, formData, success, error) {
-            this._ajax({
+        _submitFormUsingAjax: function (url, formData, success, error, extra_opts) {
+            this._ajax($.extend({
                 url: url,
                 data: formData,
                 success: success,
-                error: error
-            });
+                error: error,
+            }, extra_opts));
         },
 
         /* Creates label for an input element.
@@ -420,7 +437,7 @@
                 var field = this.options.fields[fieldName];
 
                 //Do not update non-editable fields
-                if (field.edit == false) {
+                if (field.edit == false || field.readOnly == true) {
                     continue;
                 }
 

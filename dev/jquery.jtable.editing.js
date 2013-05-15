@@ -143,6 +143,12 @@
                 return;
             }
 
+            var extra_opts = {};
+            if (self.options.tastypie) {
+                extra_opts.type = 'PATCH';
+                extra_opts.contentType = 'application/json';
+            }
+
             self._submitFormUsingAjax(
                 options.url,
                 $.param(options.record),
@@ -167,7 +173,8 @@
                 function () {
                     self._showError(self.options.messages.serverCommunicationError);
                     options.error();
-                });
+                },
+                extra_opts);
         },
 
         /************************************************************************
@@ -217,8 +224,8 @@
             var record = $tableRow.data('record');
 
             //Create edit form
-            var action_url = self.options.tastypie ? self.options.url : self.options.actions.updateAction;
-            var $editForm = $('<form id="jtable-edit-form" class="jtable-dialog-form jtable-edit-form" action="' + action_url + '" method="POST"></form>');
+            var method = self.options.tastypie ? 'PUT' : 'POST';
+            var $editForm = $('<form id="jtable-edit-form" class="jtable-dialog-form jtable-edit-form" method="' + method + '"></form>');
 
             //Create input fields
             for (var i = 0; i < self._fieldList.length; i++) {
@@ -267,6 +274,13 @@
                     }));
             }
 
+            var action_url = self.options.actions.updateAction;
+            if (self.options.tastypie) {
+                var id = $('#Edit-id', $editForm).val();
+                action_url = self.options.url + id + '/'
+            }
+            $editForm.prop('action', action_url);
+
             self._makeCascadeDropDowns($editForm, record, 'edit');
 
             //Open dialog
@@ -279,9 +293,14 @@
         *************************************************************************/
         _saveEditForm: function ($editForm, $saveButton) {
             var self = this;
+            var extra_opts = {};
+            if (self.options.tastypie) {
+                extra_opts.type = 'PATCH';
+                extra_opts.contentType = 'application/json';
+            }
             self._submitFormUsingAjax(
                 $editForm.attr('action'),
-                $editForm.serialize(),
+                self._formToData($editForm),
                 function (data) {
                     //Check for errors
                     if (data.Result != 'OK') {
@@ -292,8 +311,18 @@
 
                     var record = self._$editingRow.data('record');
 
-                    self._updateRecordValuesFromForm(record, $editForm);
-                    self._updateRecordValuesFromServerResponse(record, data);
+                    if (self.options.tastypie) {
+                        // Always fetch the new values from the server. This should probably be optional,
+                        // but in my current case there some field values that get calculated on the server
+                        // based on other field values, and this was a simple way to retrieve those.
+                        var url = self.options.url + record.id + '/';
+                        $.ajax(url, {async: false}).success(function(resp) {
+                            record = $.extend(true, record, resp);
+                        });
+                    } else {
+                        self._updateRecordValuesFromForm(record, $editForm);
+                        self._updateRecordValuesFromServerResponse(record, data);
+                    }
                     self._updateRowTexts(self._$editingRow);
 
                     self._$editingRow.attr('data-record-key', self._getKeyValueOfRecord(record));
@@ -309,7 +338,8 @@
                 function () {
                     self._showError(self.options.messages.serverCommunicationError);
                     self._setEnabledOfDialogButton($saveButton, true, self.options.messages.save);
-                });
+                },
+                extra_opts);
         },
 
         /* This method ensures updating of current record with server response,

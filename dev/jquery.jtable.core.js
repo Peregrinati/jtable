@@ -13,11 +13,20 @@
                 done: function(orig_data) {
                     var data = {
                         Result: "OK",
-                        Records: orig_data.objects,
-                        TotalRecordCount: orig_data.meta.total_count,
+                    }
+                    if (orig_data.objects) {
+                        data.Records = orig_data.objects;
+                    }
+                    if (orig_data.meta && orig_data.meta.total_count) {
+                        data.TotalRecordCount = orig_data.meta.total_count;
                     }
                     return data;
                 },
+                fail: function(orig_data) {
+                    // TODO: Handle error properly
+                    alert('tastypie fail!');
+                    return orig_data;
+                }
             },
         },
 
@@ -1143,7 +1152,13 @@
 
             var d = $.ajax(opts);
             if (this.options.tastypie) {
-                d = d.then(this.tastypie.filters.done, this.tastypie.filters.fail)
+                // Handle 202 responses being treated as failures by jQuery
+                d = d.then(null, function(resp) {
+                    if (resp.status == 202) {
+                        return $.Deferred().resolve(resp);
+                    }
+                    return resp;
+                }).then(this.tastypie.filters.done, this.tastypie.filters.fail);
             }
             d.then(this.options.response_filters.done, this.options.response_filters.fail)
                 .done(success)
