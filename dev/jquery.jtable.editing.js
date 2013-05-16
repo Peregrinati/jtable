@@ -147,6 +147,7 @@
             if (self.options.tastypie) {
                 extra_opts.type = 'PATCH';
                 extra_opts.contentType = 'application/json';
+                extra_opts.dataType = 'text';
             }
 
             self._submitFormUsingAjax(
@@ -297,6 +298,7 @@
             if (self.options.tastypie) {
                 extra_opts.type = 'PATCH';
                 extra_opts.contentType = 'application/json';
+                extra_opts.dataType = 'text';
             }
             self._submitFormUsingAjax(
                 $editForm.attr('action'),
@@ -311,18 +313,8 @@
 
                     var record = self._$editingRow.data('record');
 
-                    if (self.options.tastypie) {
-                        // Always fetch the new values from the server. This should probably be optional,
-                        // but in my current case there some field values that get calculated on the server
-                        // based on other field values, and this was a simple way to retrieve those.
-                        var url = self.options.url + record.id + '/';
-                        $.ajax(url, {async: false}).success(function(resp) {
-                            record = $.extend(true, record, resp);
-                        });
-                    } else {
-                        self._updateRecordValuesFromForm(record, $editForm);
-                        self._updateRecordValuesFromServerResponse(record, data);
-                    }
+                    self._updateRecordValuesFromForm(record, $editForm);
+                    self._updateRecordValuesFromServerResponse(record, data);
                     self._updateRowTexts(self._$editingRow);
 
                     self._$editingRow.attr('data-record-key', self._getKeyValueOfRecord(record));

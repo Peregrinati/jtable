@@ -14,19 +14,20 @@
                     var data = {
                         Result: "OK",
                     }
+                    var found = false;
                     if (orig_data.objects) {
                         data.Records = orig_data.objects;
+                        found = true;
                     }
                     if (orig_data.meta && orig_data.meta.total_count) {
                         data.TotalRecordCount = orig_data.meta.total_count;
+                        found = true;
+                    }
+                    if (!found) {
+                        data.Record = JSON.parse(orig_data);
                     }
                     return data;
                 },
-                fail: function(orig_data) {
-                    // TODO: Handle error properly
-                    alert('tastypie fail!');
-                    return orig_data;
-                }
             },
         },
 

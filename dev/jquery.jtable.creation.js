@@ -48,7 +48,7 @@
             var self = this;
 
             //Check if createAction is supplied
-            if (!self.options.actions.createAction) {
+            if (this.options.tastypie ? !this.options.allowCreation : !self.options.actions.createAction) {
                 return;
             }
 
@@ -61,7 +61,7 @@
                 autoOpen: false,
                 show: self.options.dialogShowEffect,
                 hide: self.options.dialogHideEffect,
-                width: 'auto',
+                width: self.options.dialogWidth || 'auto',
                 minWidth: '300',
                 modal: true,
                 title: self.options.messages.addNewRecord,
@@ -129,7 +129,7 @@
             options = $.extend({
                 clientOnly: false,
                 animationsEnabled: self.options.animationsEnabled,
-                url: self.options.actions.createAction,
+                url: (self.tastypie ? self.options.url : self.options.actions.createAction),
                 success: function () { },
                 error: function () { }
             }, options);
@@ -148,6 +148,13 @@
 
                 options.success();
                 return;
+            }
+
+            var extra_opts = {};
+            if (self.options.tastypie) {
+                extra_opts.type = 'POST';
+                extra_opts.contentType = 'application/json';
+                extra_opts.dataType = 'text';
             }
 
             self._submitFormUsingAjax(
@@ -179,7 +186,8 @@
                 function () {
                     self._showError(self.options.messages.serverCommunicationError);
                     options.error();
-                });
+                },
+                extra_opts);
         },
 
         /************************************************************************
@@ -192,7 +200,8 @@
             var self = this;
 
             //Create add new record form
-            var $addRecordForm = $('<form id="jtable-create-form" class="jtable-dialog-form jtable-create-form" action="' + self.options.actions.createAction + '" method="POST"></form>');
+            var actionUrl = self.options.tastypie ? self.options.url : self.options.actions.createAction;
+            var $addRecordForm = $('<form id="jtable-create-form" class="jtable-dialog-form jtable-create-form" action="' + actionUrl + '" method="POST"></form>');
 
             //Create input elements
             for (var i = 0; i < self._fieldList.length; i++) {
@@ -247,9 +256,16 @@
             //Make an Ajax call to update record
             $addRecordForm.data('submitting', true);
 
+            var extra_opts = {};
+            if (self.options.tastypie) {
+                extra_opts.type = 'POST';
+                extra_opts.contentType = 'application/json';
+                extra_opts.dataType = 'text';
+            }
+
             self._submitFormUsingAjax(
                 $addRecordForm.attr('action'),
-                $addRecordForm.serialize(),
+                self._formToData($addRecordForm),
                 function (data) {
 
                     if (data.Result != 'OK') {
@@ -274,7 +290,8 @@
                 function () {
                     self._showError(self.options.messages.serverCommunicationError);
                     self._setEnabledOfDialogButton($saveButton, true, self.options.messages.save);
-                });
+                },
+                extra_opts);
         },
 
         _onRecordAdded: function (data) {
