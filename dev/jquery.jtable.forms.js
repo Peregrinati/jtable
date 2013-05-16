@@ -265,8 +265,16 @@
         _fillDropDownListWithOptions: function ($select, options, value) {
             $select.empty();
             for (var i = 0; i < options.length; i++) {
-                $('<option' + (options[i].Value == value ? ' selected="selected"' : '') + '>' + options[i].DisplayText + '</option>')
+                var selected = options[i].Value == value;
+                // TODO: This is a bit of a hack. I should add a field type of 'remote' with
+                //       a url to fetch it from, that can be queried here, and used to
+                //       automatically set the display and options values as well.
+                if (this.options.tastypie && value && value.resource_uri) {
+                    selected = options[i].Value == value.resource_uri;
+                }
+                $('<option>' + options[i].DisplayText + '</option>')
                     .val(options[i].Value)
+                    .prop('selected', selected)
                     .appendTo($select);
             }
         },
