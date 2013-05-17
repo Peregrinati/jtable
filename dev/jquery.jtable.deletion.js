@@ -194,7 +194,7 @@
             options = $.extend({
                 clientOnly: false,
                 animationsEnabled: self.options.animationsEnabled,
-                url: self.options.actions.deleteAction,
+                url: self.options.tastypie ? self.options.url : self.options.actions.deleteAction,
                 success: function () { },
                 error: function () { }
             }, options);
@@ -238,7 +238,7 @@
         *************************************************************************/
         _addColumnsToHeaderRow: function ($tr) {
             base._addColumnsToHeaderRow.apply(this, arguments);
-            if (this.options.actions.deleteAction != undefined) {
+            if (this.options.tastypie ? this.options.allowDeletion : self.options.actions.deleteAction != undefined) {
                 $tr.append(this._createEmptyCommandHeader());
             }
         },
@@ -249,7 +249,7 @@
             base._addCellsToRowUsingRecord.apply(this, arguments);
 
             var self = this;
-            if (self.options.actions.deleteAction != undefined) {
+            if (this.options.tastypie ? this.options.allowDeletion : self.options.actions.deleteAction) {
                 var $span = $('<span></span>').html(self.options.messages.deleteText);
                 var $button = $('<button title="' + self.options.messages.deleteText + '"></button>')
                     .addClass('jtable-command-button jtable-delete-command-button')
@@ -341,9 +341,14 @@
             var postData = {};
             postData[self._keyField] = self._getKeyValueOfRecord($row.data('record'));
 
+            url = url || self.options.actions.deleteAction;
+            if (self.options.tastypie) {
+                url = self.options.url + $row.data('record-key');
+            }
             this._ajax({
-                url: (url || self.options.actions.deleteAction),
+                url: url,
                 data: postData,
+                type: self.options.tastypie ? 'DELETE' : 'POST',
                 success: function (data) {
                     if (data.Result != 'OK') {
                         $row.data('deleting', false);
