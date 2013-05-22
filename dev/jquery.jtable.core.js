@@ -145,6 +145,9 @@
             $.each(self.options.fields, function (fieldName, props) {
                 self._normalizeFieldOptions(fieldName, props);
             });
+            if ($.isFunction(self.options.fields)) {
+                self.options.fields = self.options.fields();
+            }
         },
 
         /* Normalizes some options for a field (sets default values).
