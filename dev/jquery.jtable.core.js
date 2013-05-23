@@ -430,42 +430,48 @@
             //Generate URL (with query string parameters) to load records
             var loadUrl = self._createRecordLoadUrl();
 
+            var success_func = function (data) {
+                self._hideBusy();
+
+                //Show the error message if server returns error
+                if (data.Result != 'OK') {
+                    self._showError(data.Message);
+                    return;
+                }
+
+                //Re-generate table rows
+                self._removeAllRows('reloading');
+                self._addRecordsToTable(data.Records);
+
+                self._onRecordsLoaded(data);
+
+                //Call complete callback
+                if (completeCallback) {
+                    completeCallback();
+                }
+            }
+
             //Load data from server
             self._onLoadingRecords();
-            self._ajax({
-                url: loadUrl,
-                data: self._lastPostData,
-                traditional: this.options.tastypie,
-                type: this.options.tastypie ? 'GET' : 'POST',
-                success: function (data) {
-                    self._hideBusy();
-
-                    //Show the error message if server returns error
-                    if (data.Result != 'OK') {
-                        self._showError(data.Message);
-                        return;
+            if (loadUrl) {
+                self._ajax({
+                    url: loadUrl,
+                    data: self._lastPostData,
+                    traditional: this.options.tastypie,
+                    type: this.options.tastypie ? 'GET' : 'POST',
+                    success: success_func,
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        self._hideBusy();
+                        var resp = jqXHR.responseText;
+                        var json = $.parseJSON(resp);
+                        var defaultMsg = self.options.messages.serverCommunicationError;
+                        var err = (json && json.error) || defaultMsg;
+                        self._showError(err);
                     }
-
-                    //Re-generate table rows
-                    self._removeAllRows('reloading');
-                    self._addRecordsToTable(data.Records);
-
-                    self._onRecordsLoaded(data);
-
-                    //Call complete callback
-                    if (completeCallback) {
-                        completeCallback();
-                    }
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    self._hideBusy();
-                    var resp = jqXHR.responseText;
-                    var json = $.parseJSON(resp);
-                    var defaultMsg = self.options.messages.serverCommunicationError;
-                    var err = (json && json.error) || defaultMsg;
-                    self._showError(err);
-                }
-            });
+                });
+            } else {
+                success_func({"Result": "OK", "Records": []});
+            }
         },
 
         /* Creates URL to load records.
