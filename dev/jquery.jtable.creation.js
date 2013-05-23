@@ -129,7 +129,7 @@
             options = $.extend({
                 clientOnly: false,
                 animationsEnabled: self.options.animationsEnabled,
-                url: (self.tastypie ? self.options.url : self.options.actions.createAction),
+                url: self._getCreateUrl(),
                 success: function () { },
                 error: function () { }
             }, options);
@@ -194,13 +194,17 @@
         * PRIVATE METHODS                                                       *
         *************************************************************************/
 
+        _getCreateUrl: function() {
+            return this.tastypie ? this.options.update_url : this.options.actions.createAction;
+        },
+
         /* Shows add new record dialog form.
         *************************************************************************/
         _showAddRecordForm: function () {
             var self = this;
 
             //Create add new record form
-            var actionUrl = self.options.tastypie ? self.options.url : self.options.actions.createAction;
+            var actionUrl = self._getCreateUrl();
             var $addRecordForm = $('<form id="jtable-create-form" class="jtable-dialog-form jtable-create-form" action="' + actionUrl + '" method="POST"></form>');
 
             //Create input elements

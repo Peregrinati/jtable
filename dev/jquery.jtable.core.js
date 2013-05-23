@@ -136,6 +136,10 @@
             this._addNoDataRow();
 
             this._cookieKeyPrefix = this._generateCookieKeyPrefix();
+
+            if (this.options.tastypie && !this.options.update_url) {
+                this.options.update_url = this.options.url;
+            }
         },
 
         /* Normalizes some options for all fields (sets default values).

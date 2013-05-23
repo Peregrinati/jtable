@@ -109,7 +109,7 @@
             options = $.extend({
                 clientOnly: false,
                 animationsEnabled: self.options.animationsEnabled,
-                url: (self.tastypie ? self.options.url : self.options.actions.updateAction),
+                url: self._getUpdateUrl(),
                 success: function () { },
                 error: function () { }
             }, options);
@@ -218,6 +218,10 @@
         * PRIVATE METHODS                                                       *
         *************************************************************************/
 
+        _getUpdateUrl: function() {
+            return this.tastypie ? this.options.update_url : this.options.actions.updateAction;
+        },
+
         /* Shows edit form for a row.
         *************************************************************************/
         _showEditForm: function ($tableRow) {
@@ -278,7 +282,7 @@
             var action_url = self.options.actions.updateAction;
             if (self.options.tastypie) {
                 var id = $('#Edit-id', $editForm).val();
-                action_url = self.options.url + id + '/'
+                action_url = self._getUpdateUrl() + id + '/'
             }
             $editForm.prop('action', action_url);
 

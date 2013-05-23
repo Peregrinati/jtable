@@ -194,7 +194,7 @@
             options = $.extend({
                 clientOnly: false,
                 animationsEnabled: self.options.animationsEnabled,
-                url: self.options.tastypie ? self.options.url : self.options.actions.deleteAction,
+                url: self._getDeleteUrl(),
                 success: function () { },
                 error: function () { }
             }, options);
@@ -270,6 +270,10 @@
         * PRIVATE METHODS                                                       *
         *************************************************************************/
 
+        _getDeleteUrl: function() {
+            return this.tastypie ? this.options.update_url : this.options.actions.deleteAction;
+        },
+
         /* This method is called when user clicks delete button on a row.
         *************************************************************************/
         _deleteButtonClickedForRow: function ($row) {
@@ -343,7 +347,7 @@
 
             url = url || self.options.actions.deleteAction;
             if (self.options.tastypie) {
-                url = self.options.url + $row.data('record-key');
+                url = self._getDeleteUrl() + $row.data('record-key');
             }
             this._ajax({
                 url: url,

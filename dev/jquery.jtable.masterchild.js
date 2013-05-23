@@ -5,7 +5,8 @@
 
     //Reference to base object members
     var base = {
-        _removeRowsFromTable: $.hik.jtable.prototype._removeRowsFromTable
+        _removeRowsFromTable: $.hik.jtable.prototype._removeRowsFromTable,
+        _saveAddRecordForm: $.hik.jtable.prototype._saveAddRecordForm,
     };
 
     //extension members
@@ -34,6 +35,13 @@
 
             //Show close button as default
             tableOptions.showCloseButton = (tableOptions.showCloseButton != false);
+            if (self.options.tastypie) {
+                tableOptions._masterInfo = {
+                    jTable: self,
+                    row: $row,
+                    key: tableOptions.masterKey,
+                }
+            }
 
             //Close child table when close button is clicked (default behavior)
             if (tableOptions.showCloseButton && !tableOptions.closeRequested) {
@@ -126,8 +134,12 @@
             }
         },
 
+        isChildTable: function() {
+            return this.options._masterInfo ? true : false;
+        },
+
         /************************************************************************
-        * OVERRIDED METHODS                                                     *
+        * OVERRIDDEN METHODS                                                     *
         *************************************************************************/
 
         /* Overrides _removeRowsFromTable method to remove child rows of deleted rows.
@@ -147,6 +159,21 @@
             }
 
             base._removeRowsFromTable.apply(this, arguments);
+        },
+
+        _saveAddRecordForm: function ($addRecordForm, $saveButton) {
+            if (this.options.tastypie && this.isChildTable()) {
+                var mi = this.options._masterInfo;
+                var uri = URI(mi.jTable.options.update_url).segment(mi.row.data('record-key').toString());
+                $('<input>')
+                    .attr({
+                        name: mi.key,
+                        type: 'hidden',
+                    })
+                    .val(uri.toString() + '/')
+                    .appendTo($addRecordForm);
+            }
+            base._saveAddRecordForm.apply(this, arguments);
         },
 
         /************************************************************************
