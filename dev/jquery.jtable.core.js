@@ -39,7 +39,7 @@
             //Options
             actions: {},
             tastypie: false,
-            response_filters: {},
+            response_filters: [],
             fields: {},
             animationsEnabled: true,
             defaultDateFormat: 'yy-mm-dd',
@@ -1162,18 +1162,12 @@
 
             var d = $.ajax(opts);
             if (this.options.tastypie) {
-                // Handle 202 responses being treated as failures by jQuery
-                d = d.then(null, function(resp) {
-                    if (resp.status == 202) {
-                        return $.Deferred().resolve(resp);
-                    }
-                    return resp;
-                }).then(this.tastypie.filters.done, this.tastypie.filters.fail);
+                d = d.then(this.tastypie.filters.done, this.tastypie.filters.fail);
             }
-            d.then(this.options.response_filters.done, this.options.response_filters.fail)
-                .done(success)
-                .fail(error)
-                .always(complete);
+            $.each(this.options.response_filters, function(i, e) {
+                d = d.then(e.done, e.fail);
+            });
+            d.done(success).fail(error).always(complete);
         },
 
         /* Gets value of key field of a record.
