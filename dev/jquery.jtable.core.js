@@ -710,7 +710,7 @@
 
             //if this is a custom field, call display function
             if (field.display) {
-                return field.display({ record: record });
+                return field.display({ record: record }, this.options.tastypie ? this.options.tastypie_id : null);
             }
 
             if (field.type == 'date') {
