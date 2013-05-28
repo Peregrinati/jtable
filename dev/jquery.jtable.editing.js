@@ -151,8 +151,8 @@
             }
 
             self._submitFormUsingAjax(
-                options.url,
-                $.param(options.record),
+                options.url + key + '/',
+                self.options.tastypie ? JSON.stringify(options.record) : $.param(options.record),
                 function (data) {
                     if (data.Result != 'OK') {
                         self._showError(data.Message);
