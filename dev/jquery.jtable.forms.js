@@ -20,6 +20,12 @@
                 $('input[type=checkbox]', form).each(function() {
                     json[this.name] = this.checked;
                 });
+                $('select[multiple]', form).each(function(i, sel) {
+                    json[sel.name] = [];
+                    $('option:selected', this).each(function() {
+                        json[sel.name].push($(this).val());
+                    });
+                });
                 return JSON.stringify(json);
             } else {
                 return form.serialize();
