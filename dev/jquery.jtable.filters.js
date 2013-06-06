@@ -35,7 +35,7 @@
 
             if (this.options.filter && field.filter) {
                 var icon = $('<span class="jtable-column-header-text jtable-filter-icon"></span>')
-                    .html('F')
+                    .html('&nbsp;')
                     .on('click', function(ev) {
                         self._filter_click(fieldName, field, icon);
                         ev.stopPropagation();
