@@ -200,7 +200,7 @@
                             $(this).dialog("close");
                         },
                         Clear: function() {
-                            self._removeFilter.call(self, field)
+                            self._removeFilter.call(self, fieldName)
                             icon.removeClass(activatedClass)
                             if (self.options.filter_auto) {
                                 self.applyFilters();
