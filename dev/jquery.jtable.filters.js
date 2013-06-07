@@ -65,6 +65,10 @@
                         f[k + '__lte'] = v.value.to;
                         filterType = '__gte';
                         val = v.value.from;
+                    } else if (v.type == 'decimal') {
+                        f[k + '__lte'] = v.value.to;
+                        filterType = '__gte';
+                        val = v.value.from;
                     } else {
                         val = v.value;
                     }
@@ -108,14 +112,26 @@
 
                 input.prop('disabled', false);
 
-                if (field.type == 'date') {
+                if (field.type == 'date' || field.inputClass == 'decimal_field') {
                     input_div.prepend('<label>From:</label><br />');
-                    var end = $('<input>').datepicker();
-                    end.datepicker('option', 'dateFormat', input.datepicker('option', 'dateFormat'));
+                    var end = $('<input>');
                     input_div.append('<br /><label>To:</label><br />');
                     input_div.append(end);
                     input.prop('tabindex', -2);
                     end.prop('tabindex', -1);
+                    if (field.type == 'date') {
+                        end.datepicker();
+                        end.datepicker('option', 'dateFormat', input.datepicker('option', 'dateFormat'));
+                    } else if (field.inputClass == 'decimal_field') {
+                        $(input).spinner({
+                            step: 0.1,
+                            numberFormat: 'n',
+                        });
+                        $(end).spinner({
+                            step: 0.1,
+                            numberFormat: 'n',
+                        });
+                    }
                 }
             }
 
@@ -172,6 +188,13 @@
                 value = {
                     from: input.val(),
                     to: input.siblings('input').val(),
+                }
+            }
+            if (field.inputClass == 'decimal_field') {
+                type = 'decimal';
+                value = {
+                    from: input.val(),
+                    to: input.parent('span').siblings('span').children('input').val(),
                 }
             }
             this._filters[fieldName] = {
