@@ -5,7 +5,6 @@
 *************************************************************************/
 (function($) {
     var base = {
-        _create: $.hik.jtable.prototype._create,
         _createHeaderCellForField: $.hik.jtable.prototype._createHeaderCellForField,
     };
 
@@ -46,15 +45,6 @@
             return headerCell;
         },
 
-        /* Overrides base method to create table filter toolbar button
-         *************************************************************************/
-        _create: function() {
-            base._create.apply(this, arguments);
-            if (this.options.filter) {
-                //this._createTableFilter();
-            }
-        },
-
         /************************************************************************
          * PUBLIC METHODS                                                       *
          *************************************************************************/
@@ -89,57 +79,6 @@
         /************************************************************************
          * PRIVATE METHODS                                                       *
          *************************************************************************/
-
-        _createTableFilter: function() {
-            var self = this;
-            var thead = this._$table.find('thead');
-            self._createFilterRow()
-                .appendTo(thead)
-        },
-
-        _createFilterRow: function() {
-            var self = this;
-            self._filterRow = $('<tr class="jtable-filter-row"></tr>');
-
-            $.each(self._columnList, function() {
-                var field = self.options.fields[this];
-                self._createFilterCell(this, field)
-                    .appendTo(self._filterRow);
-            });
-
-            // Empty cells for edit and delete buttons
-            if (this.options.actions.updateAction != undefined || (this.options.tastypie && this.options.editable)) {
-                self._createFilterCell('jtable-edit', {})
-                    .appendTo(self._filterRow);
-            }
-            if (this.options.actions.deleteAction != undefined || (this.options.tastypie && this.options.allowDeletion)) {
-                self._createFilterCell('jtable-delete', {})
-                    .appendTo(self._filterRow);
-            }
-
-            return self._filterRow;
-        },
-
-        _createFilterCell: function(field_name, field) {
-            var self = this;
-            var filter = $('<span class="jtable-filter">F</span>')
-                .data('field', {
-                    name: field_name,
-                    data: field,
-                    jtable: self,
-                })
-                .on('click', self._filter_click);
-
-            var filterCell = $('<th></th>')
-                .toggle(field.visibility !== 'hidden')
-                .addClass('jtable-column-header')
-                .addClass('ui-state-default')
-            if (field.filter) {
-                filterCell.append(filter);
-            }
-
-            return filterCell;
-        },
 
         _filter_click: function(fieldName, field, icon) {
             var self = this;
