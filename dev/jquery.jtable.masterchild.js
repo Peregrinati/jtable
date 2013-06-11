@@ -7,6 +7,8 @@
     var base = {
         _removeRowsFromTable: $.hik.jtable.prototype._removeRowsFromTable,
         _saveAddRecordForm: $.hik.jtable.prototype._saveAddRecordForm,
+        _deleteRecordFromServer: $.hik.jtable.prototype._deleteRecordFromServer,
+        _deleteButtonClickedForRow: $.hik.jtable.prototype._deleteButtonClickedForRow,
     };
 
     //extension members
@@ -16,7 +18,10 @@
         * DEFAULT OPTIONS / EVENTS                                              *
         *************************************************************************/
         options: {
-            openChildAsAccordion: false
+            openChildAsAccordion: false,
+            messages: {
+                childTableDeleteConfirmation: "This object will be unlinked from it's parent. The record itself will not be deleted.",
+            }
         },
 
         /************************************************************************
@@ -39,7 +44,8 @@
                 tableOptions._masterInfo = {
                     jTable: self,
                     row: $row,
-                    key: tableOptions.masterKey,
+                    key: tableOptions.srcColumn,
+                    realDeletion: tableOptions.realDeletion,
                 }
             }
 
@@ -174,6 +180,49 @@
                     .appendTo($addRecordForm);
             }
             base._saveAddRecordForm.apply(this, arguments);
+        },
+
+        _deleteRecordFromServer: function ($row, success, error, url) {
+            var self = this;
+            var mi = this.options._masterInfo;
+
+            if (!this.isChildTable() || mi.realDeletion) {
+                return base._deleteRecordFromServer.apply(this, arguments);
+            }
+
+            //Check if it is already being deleted right now
+            if ($row.data('deleting') == true) {
+                return;
+            }
+            $row.data('deleting', true);
+
+            var patchData = {};
+            var masterRecord = mi.row.data('record');
+            var toDel = $row.data('record').resource_uri;
+            var newVal = [];
+            var oldVal = masterRecord[mi.key];
+            for (var i = 0; i < oldVal.length; i++) {
+                if (oldVal[i] != toDel) {
+                    newVal.push(oldVal[i]);
+                }
+            }
+            masterRecord[mi.key] = newVal;
+
+            self.updateRecord.call(mi.jTable, {
+                record: masterRecord,
+                success: success,
+                error: error,
+            });
+        },
+
+        _deleteButtonClickedForRow: function ($row) {
+            var self = this;
+            var origMsg = self.options.messages.deleteConfirmation;
+            if (!this.options._masterInfo.realDeletion) {
+                self.options.messages.deleteConfirmation = self.options.messages.childTableDeleteConfirmation;
+            }
+            base._deleteButtonClickedForRow.apply(this, arguments);
+            self.options.messages.deleteConfirmation = origMsg;
         },
 
         /************************************************************************
