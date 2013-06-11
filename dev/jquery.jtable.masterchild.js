@@ -168,16 +168,20 @@
         },
 
         _saveAddRecordForm: function ($addRecordForm, $saveButton) {
-            if (this.options.tastypie && this.isChildTable()) {
-                var mi = this.options._masterInfo;
-                var uri = URI(mi.jTable.options.update_url).segment(mi.row.data('record-key').toString());
-                $('<input>')
-                    .attr({
-                        name: mi.key,
-                        type: 'hidden',
-                    })
-                    .val(uri.toString() + '/')
-                    .appendTo($addRecordForm);
+            var self = this;
+            var origEvent = self.options.recordAdded;
+            self.options.recordAdded = function(ev, data) {
+                self.options.recordAdded = origEvent;
+                var mi = self.options._masterInfo;
+                var masterRecord = mi.row.data('record');
+                var uri = data.record.resource_uri;
+
+                masterRecord[mi.key].push(uri);
+
+                self.updateRecord.call(mi.jTable, {
+                    record: masterRecord,
+                    animationsEnabled: false,
+                });
             }
             base._saveAddRecordForm.apply(this, arguments);
         },
