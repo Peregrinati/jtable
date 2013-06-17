@@ -107,6 +107,7 @@
                     f = this._createRadioButtonListForField(field, fieldName, value, record, formType);
                 } else {
                     f = this._createDropDownListForField(field, fieldName, value, record, formType, form);
+                    f.find('select').prop('disabled', field.readOnly);
                 }
             } else {
                 f = this._createTextInputForField(field, fieldName, value);
