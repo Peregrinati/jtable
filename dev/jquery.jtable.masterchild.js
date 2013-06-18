@@ -7,6 +7,7 @@
     var base = {
         _removeRowsFromTable: $.hik.jtable.prototype._removeRowsFromTable,
         _saveAddRecordForm: $.hik.jtable.prototype._saveAddRecordForm,
+        _showAddRecordForm: $.hik.jtable.prototype._showAddRecordForm,
         _deleteRecordFromServer: $.hik.jtable.prototype._deleteRecordFromServer,
         _deleteButtonClickedForRow: $.hik.jtable.prototype._deleteButtonClickedForRow,
     };
@@ -167,14 +168,35 @@
             base._removeRowsFromTable.apply(this, arguments);
         },
 
+        _showAddRecordForm: function () {
+            var self = this;
+
+            base._showAddRecordForm.apply(this, arguments);
+            if (this.isChildTable()) {
+                var mi = self.options._masterInfo;
+                // FIXME: This is kind of hacky. It relies on the shaky assumption
+                //        that the tastypie_id of the master table == the name of
+                //        the reverse relation in the child.
+                var masterID = mi.jTable.options.tastypie_id;
+                var reverseField = $('#Edit-' + masterID, self._$addRecordDiv);
+                reverseField.parents('.jtable-input-field-container').toggle(false);
+            }
+        },
+
         _saveAddRecordForm: function ($addRecordForm, $saveButton) {
             var self = this;
             var origEvent = self.options.recordAdded;
+            base._saveAddRecordForm.apply(this, arguments);
             self.options.recordAdded = function(ev, data) {
                 self.options.recordAdded = origEvent;
                 var mi = self.options._masterInfo;
                 var masterRecord = mi.row.data('record');
                 var uri = data.record.resource_uri;
+                var parent_uri = mi.row.data('record').resource_uri
+                // FIXME: This is kind of hacky. It relies on the shaky assumption
+                //        that the tastypie_id of the master table == the name of
+                //        the reverse relation in the child.
+                data.record[mi.jTable.options.tastypie_id] = parent_uri;
 
                 masterRecord[mi.key].push(uri);
 
@@ -183,7 +205,6 @@
                     animationsEnabled: false,
                 });
             }
-            base._saveAddRecordForm.apply(this, arguments);
         },
 
         _deleteRecordFromServer: function ($row, success, error, url) {
