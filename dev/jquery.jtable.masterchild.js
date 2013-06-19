@@ -10,6 +10,7 @@
         _showAddRecordForm: $.hik.jtable.prototype._showAddRecordForm,
         _deleteRecordFromServer: $.hik.jtable.prototype._deleteRecordFromServer,
         _deleteButtonClickedForRow: $.hik.jtable.prototype._deleteButtonClickedForRow,
+        _addRecordsToTable: $.hik.jtable.prototype._addRecordsToTable,
     };
 
     //extension members
@@ -149,6 +150,62 @@
         * OVERRIDDEN METHODS                                                     *
         *************************************************************************/
 
+        // NOTE: I don't call base here if in tastypie mode; this could potentially
+        //       cause problems with any new plugins.
+        _addRecordsToTable: function (records) {
+            var self = this;
+
+            if (self.isChildTable() && self.options.tastypie) {
+                var loadUrl = self._createRecordLoadUrl();
+                var params = self._getQueryVars(loadUrl);
+                var orderby = params['order_by'];
+                if (orderby) {
+                    var desc = orderby[0] == '-';
+                    if (desc) { orderby = orderby.slice(1); }
+                    records.sort(function(a, b) {
+                        var order = 0;
+                        if (typeof a[orderby] === 'string') {
+                            if (a[orderby] < b[orderby]) order = -1;
+                            if (a[orderby] > b[orderby]) order = 1;
+                        } else {
+                            order = a[orderby] - b[orderby];
+                        }
+                        return order * (desc ? -1 : 1);
+                    });
+                }
+                if (self._filters) {
+                    $.each(records, function() {
+                        var record = this;
+                        $.each(self._filters, function(name, filter) {
+                            var match = false;
+                            if (filter.type == 'options') {
+                                match = $.inArray(record[name], filter.value) == -1;
+                            } else if (filter.type == 'text') {
+                                match = record[name].toLowerCase().indexOf(filter.value.toLowerCase()) == -1;
+                            } else if (filter.type == 'daterange') {
+                                //TODO: Test... probably need to parse the dates.
+                                match = record[name] <= filter.value.to && record[name] >= filter.value.from;
+                            } else if (filter.type == 'decimal') {
+                                match = record[name] <= filter.value.to && record[name] >= filter.value.from;
+                            }
+                            if (match) {
+                                record['_filtered_out'] = true;
+                            }
+                        });
+                    });
+                }
+                $.each(records, function (index, record) {
+                    if (!record._filtered_out) {
+                        self._addRow(self._createRowFromRecord(record));
+                    }
+                });
+
+                self._refreshRowStyles();
+            } else {
+                base._addRecordsToTable.apply(self, arguments);
+            }
+        },
+
         /* Overrides _removeRowsFromTable method to remove child rows of deleted rows.
         *************************************************************************/
         _removeRowsFromTable: function ($rows, reason) {
@@ -265,6 +322,22 @@
             $row.data('childRow', $childRow);
             $childRow.hide();
             return $childRow;
+        },
+
+        _getQueryVars: function(url) {
+            var qsStart = url.indexOf('?');
+            if (qsStart < 0) {
+                return {}
+            }
+
+            var nvpair = {};
+            var qs = url.slice(qsStart + 1)
+            var pairs = qs.split('&');
+            $.each(pairs, function(i, v){
+                var pair = v.split('=');
+                nvpair[pair[0]] = pair[1];
+            });
+            return nvpair;
         }
 
     });
