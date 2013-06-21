@@ -244,6 +244,10 @@
             var self = this;
             var origEvent = self.options.recordAdded;
             base._saveAddRecordForm.apply(this, arguments);
+            if (!this.isChildTable()) {
+                return
+            }
+
             self.options.recordAdded = function(ev, data) {
                 self.options.recordAdded = origEvent;
                 var mi = self.options._masterInfo;
@@ -299,6 +303,10 @@
 
         _deleteButtonClickedForRow: function ($row) {
             var self = this;
+            if (!self.isChildTable()) {
+                return base._deleteButtonClickedForRow.apply(this, arguments);
+            }
+
             var origMsg = self.options.messages.deleteConfirmation;
             if (!this.options._masterInfo.realDeletion) {
                 self.options.messages.deleteConfirmation = self.options.messages.childTableDeleteConfirmation;
