@@ -15,12 +15,12 @@
         options: {
             filter: false,
             filter_auto: true,
+            _filters: {},
         },
 
         /************************************************************************
          * PRIVATE FIELDS                                                        *
          *************************************************************************/
-        _filters: {},
 
         /************************************************************************
          * OVERRIDDEN METHODS                                                     *
@@ -51,7 +51,7 @@
         applyFilters: function() {
             var self = this;
             var f = {};
-            $.each(self._filters, function(k, v) {
+            $.each(self.options._filters, function(k, v) {
                 var filterType = '';
                 var val = null
                 if (self.options.tastypie) {
@@ -197,14 +197,14 @@
                     to: input.parent('span').siblings('span').children('input').val(),
                 }
             }
-            this._filters[fieldName] = {
+            this.options._filters[fieldName] = {
                 type: type,
                 value: value,
             }
         },
 
         _removeFilter: function(fieldName) {
-            delete this._filters[fieldName];
+            delete this.options._filters[fieldName];
         }
     });
 

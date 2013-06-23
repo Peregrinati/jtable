@@ -173,10 +173,10 @@
                         return order * (desc ? -1 : 1);
                     });
                 }
-                if (self._filters) {
+                if (self.options._filters) {
                     $.each(records, function() {
                         var record = this;
-                        $.each(self._filters, function(name, filter) {
+                        $.each(self.options._filters, function(name, filter) {
                             var match = false;
                             if (filter.type == 'options') {
                                 match = $.inArray(record[name], filter.value) == -1;
