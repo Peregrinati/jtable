@@ -231,6 +231,7 @@
                 //Create a container div for this input field and add to form
                 var $fieldContainer = $('<div />')
                     .addClass('jtable-input-field-container')
+                    .addClass('fieldName-' + fieldName)
                     .appendTo($addRecordForm);
 
                 //Create a label for input
