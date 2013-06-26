@@ -334,9 +334,10 @@
                     self._$editDiv.dialog("close");
                 },
                 function (resp) {
-                    if (self.options.tastypie && resp.Result == 'ValidationError') {
+                    // FIXME: Validation would be better as it's own plugin, I think. This is a quick hack.
+                    if (self.options.tastypie && resp) {
                         var msg = "<h3>Validation Error</h3>";
-                        $.each(resp.data, function(k, v) {
+                        $.each(resp, function(k, v) {
                             msg += "<p>Field '" + k + '": ' + v + '</p>';
                         });
                         self._showError(msg);

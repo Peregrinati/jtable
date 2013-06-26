@@ -24,7 +24,7 @@
                         found = true;
                     }
                     if (orig_data && !found) {
-                        data.Record = JSON.parse(orig_data);
+                        data.Record = orig_data;
                     }
                     return data;
                 },
