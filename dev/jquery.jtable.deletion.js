@@ -369,7 +369,7 @@
                         success(data);
                     }
                 },
-                error: function () {
+                error: function (resp) {
                     $row.data('deleting', false);
                     if (error) {
                         error(self.options.messages.serverCommunicationError);

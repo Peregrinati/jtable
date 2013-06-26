@@ -147,7 +147,7 @@
             if (self.options.tastypie) {
                 extra_opts.type = 'PATCH';
                 extra_opts.contentType = 'application/json';
-                extra_opts.dataType = 'text';
+                extra_opts.dataType = 'json';
             }
 
             self._submitFormUsingAjax(
@@ -171,7 +171,7 @@
 
                     options.success(data);
                 },
-                function () {
+                function (resp) {
                     self._showError(self.options.messages.serverCommunicationError);
                     options.error();
                 },
@@ -304,7 +304,7 @@
             if (self.options.tastypie) {
                 extra_opts.type = 'PATCH';
                 extra_opts.contentType = 'application/json';
-                extra_opts.dataType = 'text';
+                extra_opts.dataType = 'json';
             }
             self._submitFormUsingAjax(
                 $editForm.attr('action'),
@@ -333,8 +333,16 @@
 
                     self._$editDiv.dialog("close");
                 },
-                function () {
-                    self._showError(self.options.messages.serverCommunicationError);
+                function (resp) {
+                    if (self.options.tastypie && resp.Result == 'ValidationError') {
+                        var msg = "<h3>Validation Error</h3>";
+                        $.each(resp.data, function(k, v) {
+                            msg += "<p>Field '" + k + '": ' + v + '</p>';
+                        });
+                        self._showError(msg);
+                    } else {
+                        self._showError(self.options.messages.serverCommunicationError);
+                    }
                     self._setEnabledOfDialogButton($saveButton, true, self.options.messages.save);
                 },
                 extra_opts);

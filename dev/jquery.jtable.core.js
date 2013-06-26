@@ -28,6 +28,14 @@
                     }
                     return data;
                 },
+                fail: function(orig_data) {
+                    var data = jQuery.parseJSON(orig_data.responseText);
+                    $.each(data, function(k, v) {
+                        data = v;
+                        return false;
+                    });
+                    return data
+                }
             },
         },
 
